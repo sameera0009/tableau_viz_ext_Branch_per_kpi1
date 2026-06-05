@@ -31,7 +31,7 @@ html,body{
 #app{
   width:calc(100% - 12px);
   height:calc(100% - 12px);
-  max-width:200px;
+  max-width:260px;
   display:flex;align-items:center;justify-content:center;
 }
 
@@ -51,16 +51,13 @@ html,body{
   display:flex;flex-direction:column;
   animation:cardIn .5s var(--ease2) both;
   cursor:default;
-  transition:box-shadow .25s var(--ease2),transform .2s var(--ease2);
+  
 }
 @keyframes cardIn{
   from{opacity:0;transform:translateY(12px) scale(.97)}
   to{opacity:1;transform:none}
 }
-#card:hover{
-  box-shadow:0 4px 14px rgba(15,23,42,.08),0 20px 44px rgba(15,23,42,.1);
-  transform:translateY(-2px);
-}
+/* no hover effects */
 
 /* ── BODY ── */
 .body{padding:16px 16px 0;position:relative;z-index:1;}
@@ -73,20 +70,8 @@ html,body{
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 
-/* ── HERO AMOUNT — hides on hover ── */
+/* ── HERO AMOUNT ── */
 #amt-block{
-  overflow:hidden;max-height:190px;opacity:1;
-  transform:translateY(0);
-  transition:
-    max-height .32s var(--ease2),
-    opacity .22s ease,
-    transform .22s var(--ease2),
-    margin .28s var(--ease2);
-  margin-bottom:0;
-}
-#card:hover #amt-block{
-  max-height:0;opacity:0;
-  transform:translateY(-6px);
   margin-bottom:0;
 }
 
@@ -140,7 +125,7 @@ html,body{
   letter-spacing:-.01em;
   transition:transform .14s var(--ease2);
 }
-.chip:hover{transform:scale(1.06);}
+
 .chip-up{background:var(--g-bg);color:var(--g);border:.5px solid var(--g-bdr);}
 .chip-dn{background:var(--r-bg);color:var(--r);border:.5px solid var(--r-bdr);}
 .chip-lbl{
@@ -149,15 +134,12 @@ html,body{
   opacity:.7;
 }
 
-/* ── DIVIDER — hides on hover ── */
+/* ── DIVIDER ── */
 #divider{
   height:.5px;
   background:linear-gradient(90deg,rgba(15,23,42,.07) 0%,transparent 100%);
   margin:10px 16px 8px;
-  transition:margin .28s var(--ease2),opacity .2s,max-height .28s var(--ease2);
-  max-height:1px;opacity:1;overflow:hidden;
 }
-#card:hover #divider{opacity:0;margin:0 16px;max-height:0;}
 
 /* ════════════════════════════════
    SVG SPARKLINE — pure SVG, no external lib
@@ -165,11 +147,7 @@ html,body{
 #chart-wrap{
   position:relative;
   padding:0 16px 12px;
-  transition:padding .3s var(--ease2);
   z-index:1;
-}
-#card:hover #chart-wrap{
-  padding:8px 16px 14px;
 }
 
 #sparkline-svg{
@@ -179,14 +157,10 @@ html,body{
   transition:height .35s var(--ease2);
 }
 
-/* x-axis labels — appear on hover */
 .x-labels{
   display:flex;justify-content:space-between;
   padding:4px 0 0;
-  opacity:0;
-  transition:opacity .22s ease .08s;
 }
-#card:hover .x-labels{opacity:1;}
 .x-labels span{
   font-size:7px;font-weight:600;
   color:var(--t5);white-space:nowrap;
@@ -194,17 +168,8 @@ html,body{
 
 /* hover value badge on chart */
 #chart-badge{
-  position:absolute;top:2px;right:16px;
-  font-size:8px;font-weight:700;
-  font-family:var(--mono);
-  background:rgba(255,255,255,.92);
-  border:1px solid rgba(15,23,42,.08);
-  padding:2px 7px;border-radius:7px;
-  color:var(--t2);
-  opacity:0;transition:opacity .2s;pointer-events:none;
-  z-index:2;box-shadow:0 2px 8px rgba(15,23,42,.06);
+  display:none; /* replaced by interactive tooltip */
 }
-#card:hover #chart-badge{opacity:1;}
 
 /* ── LOADING ── */
 #loading{
@@ -222,6 +187,48 @@ html,body{
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-txt{font-size:10px;color:var(--t4);font-weight:500;}
+
+/* ═══════ INTERACTIVE CHART TOOLTIP ═══════ */
+#chart-tooltip{
+  position:absolute;
+  pointer-events:none;
+  z-index:10;
+  background:rgba(15,23,42,.94);
+  backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:9px;
+  padding:7px 10px;
+  box-shadow:0 4px 16px rgba(0,0,0,.2);
+  opacity:0;
+  transition:opacity .12s,transform .12s;
+  transform:translateY(4px);
+  white-space:nowrap;
+  font-size:9px;
+  color:#e2e8f0;
+}
+#chart-tooltip.vis{
+  opacity:1;transform:translateY(0);
+}
+.tt-date{font-weight:700;color:#f1f5f9;margin-bottom:3px;font-size:9.5px;}
+.tt-row{display:flex;align-items:center;gap:6px;margin-top:2px;}
+.tt-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.tt-lbl{color:#94a3b8;font-weight:500;min-width:40px;}
+.tt-val{font-family:var(--mono);font-weight:700;color:#f1f5f9;font-size:9.5px;}
+
+/* hover hit zones on SVG */
+.hit-zone{cursor:crosshair;opacity:0;}
+.hover-dot{pointer-events:none;opacity:0;transition:opacity .12s;}
+.hover-dot.vis{opacity:1;}
+
+/* ═══════ SELECTED STATE ═══════ */
+#card.selected{
+  border-color:rgba(37,99,235,.35);
+  box-shadow:
+    0 1px 3px rgba(15,23,42,.04),
+    0 8px 24px rgba(15,23,42,.07),
+    0 0 0 2px rgba(37,99,235,.15);
+}
+#card{cursor:pointer;}
 </style>
 </head>
 <body>
@@ -252,7 +259,7 @@ html,body{
     <svg id="sparkline-svg" viewBox="0 0 200 50" preserveAspectRatio="none" aria-label="Trend sparkline">
       <!-- built by JS -->
     </svg>
-    <div id="chart-badge"></div>
+    <div id="chart-tooltip"></div>
     <div class="x-labels">
       <span id="xl-first"></span>
       <span id="xl-last"></span>
@@ -293,69 +300,98 @@ function fmtPct(n){return n===null||isNaN(n)?'—':Math.round(n)+'%';}
 /* ════════════════════════════════
    SVG SPARKLINE BUILDER — cubic bezier smoothed
 ════════════════════════════════ */
-function buildSparkline(values,color){
+/* store chart metadata for tooltip interaction */
+var _chartMeta=null;
+
+function buildSparkline(values,budgets,labels,color){
   var svg=$('sparkline-svg');
   svg.innerHTML='';
   if(!values.length) return;
 
+  var ns='http://www.w3.org/2000/svg';
   var W=200, H=50;
   var n=values.length;
-  var min=Math.min.apply(null,values);
-  var max=Math.max.apply(null,values);
-  var range=max-min||1;
-  var pad=4; /* vertical padding so line doesn't clip */
 
-  /* compute points */
+  /* combine actual+budget for shared y-scale */
+  var allVals=values.slice();
+  if(budgets) budgets.forEach(function(b){if(b!==null) allVals.push(b);});
+  var min=Math.min.apply(null,allVals);
+  var max=Math.max.apply(null,allVals);
+  var range=max-min||1;
+  var pad=4;
+
+  function toY(v){return pad+(1-(v-min)/range)*(H-pad*2);}
+
+  /* ── actual points ── */
   var pts=values.map(function(v,i){
-    return{
-      x:(n===1)?W/2:i/(n-1)*W,
-      y:pad+(1-(v-min)/range)*(H-pad*2)
-    };
+    return{x:(n===1)?W/2:i/(n-1)*W, y:toY(v)};
   });
 
-  /* build smooth cubic bezier path */
-  var d='M '+pts[0].x.toFixed(1)+' '+pts[0].y.toFixed(1);
-  for(var i=1;i<pts.length;i++){
-    var p0=pts[i-1],p1=pts[i];
-    var cpx1=p0.x+(p1.x-p0.x)*0.4;
-    var cpx2=p0.x+(p1.x-p0.x)*0.6;
-    d+=' C '+cpx1.toFixed(1)+' '+p0.y.toFixed(1)+
-       ' '+cpx2.toFixed(1)+' '+p1.y.toFixed(1)+
-       ' '+p1.x.toFixed(1)+' '+p1.y.toFixed(1);
+  /* ── bezier path builder ── */
+  function bezierPath(points){
+    var d='M '+points[0].x.toFixed(1)+' '+points[0].y.toFixed(1);
+    for(var i=1;i<points.length;i++){
+      var p0=points[i-1],p1=points[i];
+      var cx1=p0.x+(p1.x-p0.x)*0.4;
+      var cx2=p0.x+(p1.x-p0.x)*0.6;
+      d+=' C '+cx1.toFixed(1)+' '+p0.y.toFixed(1)+
+         ' '+cx2.toFixed(1)+' '+p1.y.toFixed(1)+
+         ' '+p1.x.toFixed(1)+' '+p1.y.toFixed(1);
+    }
+    return d;
   }
 
-  /* gradient fill */
-  var ns='http://www.w3.org/2000/svg';
+  var d=bezierPath(pts);
+
+  /* ── defs: gradient + glow ── */
   var defs=document.createElementNS(ns,'defs');
   var grad=document.createElementNS(ns,'linearGradient');
   grad.setAttribute('id','spFill');
   grad.setAttribute('x1','0');grad.setAttribute('y1','0');
   grad.setAttribute('x2','0');grad.setAttribute('y2','1');
-  var s1=document.createElementNS(ns,'stop');
-  s1.setAttribute('offset','0%');s1.setAttribute('stop-color',color);s1.setAttribute('stop-opacity','0.22');
-  var s2=document.createElementNS(ns,'stop');
-  s2.setAttribute('offset','100%');s2.setAttribute('stop-color',color);s2.setAttribute('stop-opacity','0');
-  grad.appendChild(s1);grad.appendChild(s2);
+  var st1=document.createElementNS(ns,'stop');
+  st1.setAttribute('offset','0%');st1.setAttribute('stop-color',color);st1.setAttribute('stop-opacity','0.2');
+  var st2=document.createElementNS(ns,'stop');
+  st2.setAttribute('offset','100%');st2.setAttribute('stop-color',color);st2.setAttribute('stop-opacity','0');
+  grad.appendChild(st1);grad.appendChild(st2);
 
-  /* glow filter */
   var filter=document.createElementNS(ns,'filter');
   filter.setAttribute('id','glow');filter.setAttribute('x','-20%');
   filter.setAttribute('y','-20%');filter.setAttribute('width','140%');filter.setAttribute('height','140%');
   var blur=document.createElementNS(ns,'feGaussianBlur');
   blur.setAttribute('in','SourceGraphic');blur.setAttribute('stdDeviation','2');
   filter.appendChild(blur);
-
   defs.appendChild(grad);defs.appendChild(filter);
   svg.appendChild(defs);
 
-  /* fill area under curve */
+  /* ── budget reference line (dashed, behind actual) ── */
+  if(budgets&&budgets.some(function(b){return b!==null;})){
+    var bPts=[];
+    budgets.forEach(function(b,i){
+      if(b!==null) bPts.push({x:(n===1)?W/2:i/(n-1)*W, y:toY(b)});
+    });
+    if(bPts.length>1){
+      var bd=bezierPath(bPts);
+      var bLine=document.createElementNS(ns,'path');
+      bLine.setAttribute('d',bd);
+      bLine.setAttribute('fill','none');
+      bLine.setAttribute('stroke','#94a3b8');
+      bLine.setAttribute('stroke-width','1.5');
+      bLine.setAttribute('stroke-dasharray','4,3');
+      bLine.setAttribute('stroke-linecap','round');
+      bLine.setAttribute('opacity','0.5');
+      svg.appendChild(bLine);
+    }
+  }
+
+  /* ── fill under actual ── */
   var fillD=d+' L '+pts[pts.length-1].x.toFixed(1)+' '+H+' L '+pts[0].x.toFixed(1)+' '+H+' Z';
   var fillPath=document.createElementNS(ns,'path');
   fillPath.setAttribute('d',fillD);
   fillPath.setAttribute('fill','url(#spFill)');
   svg.appendChild(fillPath);
 
-  /* glow line (behind main) */
+  /* ── glow line ── */
   var glowLine=document.createElementNS(ns,'path');
   glowLine.setAttribute('d',d);
   glowLine.setAttribute('fill','none');
@@ -363,10 +399,10 @@ function buildSparkline(values,color){
   glowLine.setAttribute('stroke-width','4');
   glowLine.setAttribute('stroke-linecap','round');
   glowLine.setAttribute('filter','url(#glow)');
-  glowLine.setAttribute('opacity','0.35');
+  glowLine.setAttribute('opacity','0.3');
   svg.appendChild(glowLine);
 
-  /* main line */
+  /* ── main line ── */
   var line=document.createElementNS(ns,'path');
   line.setAttribute('d',d);
   line.setAttribute('fill','none');
@@ -374,22 +410,17 @@ function buildSparkline(values,color){
   line.setAttribute('stroke-width','2');
   line.setAttribute('stroke-linecap','round');
   line.setAttribute('stroke-linejoin','round');
-  /* animate line drawing */
-  var len=line.getTotalLength?500:0;
-  if(len){
-    line.setAttribute('stroke-dasharray',len);
-    line.setAttribute('stroke-dashoffset',len);
-    line.style.transition='none';
-    svg.appendChild(line);
-    requestAnimationFrame(function(){
-      line.style.transition='stroke-dashoffset 1.2s cubic-bezier(.16,1,.3,1)';
-      line.setAttribute('stroke-dashoffset','0');
-    });
-  } else {
-    svg.appendChild(line);
-  }
+  var len=500;
+  line.setAttribute('stroke-dasharray',len);
+  line.setAttribute('stroke-dashoffset',len);
+  line.style.transition='none';
+  svg.appendChild(line);
+  requestAnimationFrame(function(){
+    line.style.transition='stroke-dashoffset 1.2s cubic-bezier(.16,1,.3,1)';
+    line.setAttribute('stroke-dashoffset','0');
+  });
 
-  /* endpoint dot */
+  /* ── endpoint dot ── */
   var last=pts[pts.length-1];
   var dot=document.createElementNS(ns,'circle');
   dot.setAttribute('cx',last.x.toFixed(1));
@@ -402,7 +433,86 @@ function buildSparkline(values,color){
   dot.style.transition='opacity .3s .8s';
   svg.appendChild(dot);
   requestAnimationFrame(function(){dot.style.opacity='1';});
+
+  /* ── hover dot (follows mouse) ── */
+  var hDot=document.createElementNS(ns,'circle');
+  hDot.setAttribute('cx','0');hDot.setAttribute('cy','0');
+  hDot.setAttribute('r','4');
+  hDot.setAttribute('fill',color);
+  hDot.setAttribute('stroke','#fff');
+  hDot.setAttribute('stroke-width','2');
+  hDot.setAttribute('class','hover-dot');
+  svg.appendChild(hDot);
+
+  /* vertical crosshair */
+  var vLine=document.createElementNS(ns,'line');
+  vLine.setAttribute('x1','0');vLine.setAttribute('y1','0');
+  vLine.setAttribute('x2','0');vLine.setAttribute('y2',H);
+  vLine.setAttribute('stroke','#cbd5e1');
+  vLine.setAttribute('stroke-width','0.5');
+  vLine.setAttribute('stroke-dasharray','2,2');
+  vLine.setAttribute('class','hover-dot');
+  svg.appendChild(vLine);
+
+  /* ── invisible hit zones per data point ── */
+  var stepW=n>1?W/(n-1):W;
+  pts.forEach(function(p,i){
+    var rect=document.createElementNS(ns,'rect');
+    rect.setAttribute('x',(p.x-stepW/2).toFixed(1));
+    rect.setAttribute('y','0');
+    rect.setAttribute('width',stepW.toFixed(1));
+    rect.setAttribute('height',H);
+    rect.setAttribute('class','hit-zone');
+    rect.setAttribute('data-idx',i);
+    rect.addEventListener('mouseenter',function(){showTooltip(i,p.x,p.y);});
+    rect.addEventListener('mouseleave',function(){hideTooltip();});
+    svg.appendChild(rect);
+  });
+
+  /* store metadata for tooltip */
+  _chartMeta={pts:pts,values:values,budgets:budgets||[],labels:labels||[],color:color,H:H};
 }
+
+/* ── tooltip show/hide ── */
+function showTooltip(idx,px,py){
+  if(!_chartMeta) return;
+  var m=_chartMeta;
+  var tt=$('chart-tooltip');
+  var lbl=m.labels[idx]||'';
+  var act=m.values[idx];
+  var bud=m.budgets[idx];
+
+  var html='<div class="tt-date">'+escH(lbl)+'</div>';
+  html+='<div class="tt-row"><div class="tt-dot" style="background:'+m.color+'"></div><span class="tt-lbl">Actual</span><span class="tt-val">'+fmtN(act)+'</span></div>';
+  if(bud!==null&&bud!==undefined){
+    html+='<div class="tt-row"><div class="tt-dot" style="background:#94a3b8"></div><span class="tt-lbl">Budget</span><span class="tt-val">'+fmtN(bud)+'</span></div>';
+  }
+  tt.innerHTML=html;
+  tt.classList.add('vis');
+
+  /* position: above the point, horizontally clamped */
+  var wrap=$('chart-wrap');
+  var wW=wrap.offsetWidth-32; /* minus padding */
+  var ttW=tt.offsetWidth||100;
+  var left=Math.max(16,Math.min(px*(wW/200)+16-ttW/2, wW+16-ttW));
+  tt.style.left=left+'px';
+  tt.style.bottom=(m.H-py+18)+'px';
+
+  /* show hover dot + crosshair */
+  var svg=$('sparkline-svg');
+  var hDots=svg.querySelectorAll('.hover-dot');
+  hDots.forEach(function(d){d.classList.add('vis');});
+  var hCircle=svg.querySelector('circle.hover-dot');
+  if(hCircle){hCircle.setAttribute('cx',px.toFixed(1));hCircle.setAttribute('cy',py.toFixed(1));}
+  var vl=svg.querySelector('line.hover-dot');
+  if(vl){vl.setAttribute('x1',px.toFixed(1));vl.setAttribute('x2',px.toFixed(1));}
+}
+function hideTooltip(){
+  $('chart-tooltip').classList.remove('vis');
+  var svg=$('sparkline-svg');
+  svg.querySelectorAll('.hover-dot').forEach(function(d){d.classList.remove('vis');});
+}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 /* ════════════════════════════════
    RESPONSIVE
@@ -528,7 +638,8 @@ function render(rows,enc){
   /* ── header ── */
   var hdr=dvStr(rows[0],catKey);
   if(!hdr&&enc.hero) hdr=enc.hero.name.replace(/^(SUM|AVG|MAX|MIN)\((.+)\)$/i,'$2').trim();
-  $('card-hdr').textContent=(hdr||'KPI').toUpperCase();
+  _categoryVal=hdr||'KPI';
+  $('card-hdr').textContent=_categoryVal.toUpperCase();
 
   /* ── hero amount: SUM all rows ── */
   var heroVal=null;
@@ -559,6 +670,9 @@ function render(rows,enc){
   lastMon=smartRead(lmKey);
   yearEnd=smartRead(yeKey);
 
+  /* also auto-detect budget for trend overlay */
+  var budTrendKey=autoFind(rk,used,['target','budget','tgt','plan','bud']);
+
   /* ── trend series ── */
   var tKey=trdKey||heroKey;
   var pts=[];
@@ -566,7 +680,8 @@ function render(rows,enc){
     var val=dvNum(row,tKey);if(val===null) return;
     var lbl=datKey?fmtLabel(row[datKey]):'';
     var dateObj=datKey?parseDate(row[datKey]):null;
-    pts.push({val:val,lbl:lbl,date:dateObj});
+    var bud=dvNum(row,budTrendKey);
+    pts.push({val:val,lbl:lbl,date:dateObj,bud:bud});
   });
   if(pts.length&&pts[0].date)
     pts.sort(function(a,b){return(a.date?a.date.getTime():0)-(b.date?b.date.getTime():0);});
@@ -616,22 +731,18 @@ function render(rows,enc){
     chipsEl.appendChild(chip);
   }
 
-  
+  addChip(target,'vs target');
   addChip(lastMon,'vs LM');
   addChip(yearEnd,'vs YE');
 
-  /* ── sparkline ── */
+  /* ── sparkline with budget overlay ── */
+  var budgetVals=pts.map(function(p){return p.bud;});
   if(trendVals.length>1){
-    /* pick colour by trend direction */
     var color=trendVals[trendVals.length-1]>=trendVals[0]?'#16a34a':'#dc2626';
-    buildSparkline(trendVals,color);
+    buildSparkline(trendVals,budgetVals,labels,color);
 
-    /* x-axis labels */
     $('xl-first').textContent=labels[0]||'';
     $('xl-last').textContent=labels[labels.length-1]||'';
-
-    /* chart badge */
-    $('chart-badge').textContent=fmtN(heroVal);
   }
 
   applyScale();
@@ -640,15 +751,37 @@ function render(rows,enc){
 /* ════════════════════════════════
    CONFIRMED WORKING INIT
 ════════════════════════════════ */
+/* ── store category value for click ── */
+var _categoryVal='';
+var _wsRef=null;
+
+/* ── click card → update "selected category" parameter ── */
+$('card').addEventListener('click',function(){
+  if(!_wsRef||!_categoryVal) return;
+  var card=$('card');
+  /* toggle selected state */
+  var isSelected=card.classList.toggle('selected');
+  try{
+    _wsRef.getParametersAsync().then(function(params){
+      params.forEach(function(p){
+        var n=p.name.toLowerCase().replace(/[\s_]/g,'');
+        if(n==='selectedcategory'||n==='selcategory'||n==='category'||n==='selkpi'){
+          p.changeValueAsync(isSelected?_categoryVal:'all');
+        }
+      });
+    });
+  }catch(e){console.warn('param:',e);}
+});
+
 window.onload=tableau.extensions.initializeAsync().then(function(){
-  var ws=tableau.extensions.worksheetContent.worksheet;
+  _wsRef=tableau.extensions.worksheetContent.worksheet;
   var update=async function(){
     $('loading').style.display='flex';
-    var data=await getData(ws);
-    var enc =await getEnc(ws);
+    var data=await getData(_wsRef);
+    var enc =await getEnc(_wsRef);
     render(data,enc);
   };
-  ws.addEventListener(tableau.TableauEventType.SummaryDataChanged,update);
+  _wsRef.addEventListener(tableau.TableauEventType.SummaryDataChanged,update);
   update();
 });
 
